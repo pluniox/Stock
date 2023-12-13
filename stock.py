@@ -7,12 +7,11 @@ def verif_saisie_produit(saisie):
   if saisie == "":
     print("Saisie vide")
     return ""
+  if (65 <= ord(saisie[0]) <= 90) and (49 <= ord(saisie[1]) <= 57):
+    return saisie
   else:
-    if (65 <= ord(saisie[0]) <= 90) and (49 <= ord(saisie[1]) <= 57):
-      return saisie
-    else:
-      print("Saisie invalide")
-      return ""
+    print("Saisie invalide")
+    return ""
 
 
 def verif_saisie_paquet(saisie):
@@ -87,7 +86,23 @@ def afficher_sortie_paquet(colis, paquet):
 
 
 class Entrepot:
+    """
+    Entrepot class represents an inventory storage.
 
+    Attributes:
+    - stock: List of products in the inventory.
+    - alertes: Dictionary to track inventory alerts.
+
+    Methods:
+    - __init__: Initializes the Entrepot instance.
+    - est_vide: Checks if the inventory is empty.
+    - ajouter_produit_ou_paquet: Adds a product or a package of products to the inventory.
+    - remplir_stock: Fills the products in stock until a specified threshold.
+    - generer_alerte: Generates alerts for products below a specified threshold.
+    - print_alertes: Prints the current alerts.
+    - sortir_produit_ou_paquet: Performs the exit of a product or a package of products from the inventory.
+    """
+  
   def __init__(self):
     """Initialise l'entrepôt avec un stock de produits prédéfini au lancement et une
     dictionnaire vide pour les alertes."""
