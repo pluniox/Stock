@@ -57,12 +57,12 @@ def sortie_en_colis_paquet(stock, paquet):
 
   if sortie:
     while sortie:
-      max = sortie[0]
+      max_value = sortie[0]
       for produit in sortie:
-        if produit[-1] > max[-1]:
-          max = produit
-      colis = [max] + colis
-      sortie.remove(max)
+        if produit[-1] > max_value[-1]:
+          max_value = produit
+      colis = [max_value] + colis
+      sortie.remove(max_value)
   return colis
 
 
