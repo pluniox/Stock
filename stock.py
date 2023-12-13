@@ -115,100 +115,100 @@ class Entrepot:
   
       self.alertes = {}
 
-    def __repr__(self):
-      """Représentation de la classe sous forme de chaîne de caractères, lorsqu'on
-      appelle la méthode print() sur une instance de la classe. Ici, on représente l'
-      entrepôt sous forme d'une file."""
-      if self.est_vide():
-        return ""
+  def __repr__(self):
+    """Représentation de la classe sous forme de chaîne de caractères, lorsqu'on
+    appelle la méthode print() sur une instance de la classe. Ici, on représente l'
+    entrepôt sous forme d'une file."""
+    if self.est_vide():
+      return ""
+    else:
+      string = "<- "
+      for indice in range(len(self.stock)):
+        string += f"{self.stock[indice]} "
+      string += "<-"
+      return string
+
+  def est_vide(self):
+    """Vérifie si l'entrepôt est vide."""
+    return len(self.stock) == 0
+
+  def ajouter_produit_ou_paquet(self):
+    """Ajoute un produit ou un paquet de produits à l'entrepôt en fonction de la saisie
+    de l'utilisateur."""
+    saisie = input().upper()
+    if saisie is not None and saisie != "":
+      if len(saisie) <= 2:
+        produit = verif_saisie_produit(saisie)
+        if produit != "":
+          self.stock.append(produit)
       else:
-        string = "<- "
-        for indice in range(len(self.stock)):
-          string += f"{self.stock[indice]} "
-        string += "<-"
-        return string
-  
-    def est_vide(self):
-      """Vérifie si l'entrepôt est vide."""
-      return len(self.stock) == 0
-  
-    def ajouter_produit_ou_paquet(self):
-      """Ajoute un produit ou un paquet de produits à l'entrepôt en fonction de la saisie
-      de l'utilisateur."""
-      saisie = input().upper()
-      if saisie is not None and saisie != "":
-        if len(saisie) <= 2:
-          produit = verif_saisie_produit(saisie)
-          if produit != "":
-            self.stock.append(produit)
-        else:
-          paquet = verif_saisie_paquet(saisie)
-          if paquet != []:
-            self.stock = self.stock + paquet
-  
-    def remplir_stock(self, seuil):
-      """Remplit les produits en rupture de stock jusqu'à atteindre le seuil spécifié."""
+        paquet = verif_saisie_paquet(saisie)
+        if paquet != []:
+          self.stock = self.stock + paquet
+
+  def remplir_stock(self, seuil):
+    """Remplit les produits en rupture de stock jusqu'à atteindre le seuil spécifié."""
+    for alerte in self.alertes:
+      while self.alertes[alerte] < seuil + 1:
+        self.stock.append(alerte)
+        self.alertes[alerte] += 1
+    self.alertes = {}
+
+  def generer_alerte(self):
+    """Génère des alertes si la quantité d'un produit est en dessous du seuil spécifié.
+    Le dictionnaire des alertes est statique et limitée à 3 éléments. Si on essaye d'en
+    ajouter un quatrième, on traite d'abord les trois premiers avec remplir_stock"""
+    #Enlève les alertes de produits qui ne sont plus dans le stock
+    alertes_aux = {}
+    for produit in self.alertes:
+      if produit in self.stock:
+        alertes_aux[produit] = self.alertes[produit]
+    self.alertes = alertes_aux
+
+    #Définition du seuil et comptage du nombre de chaque produits dans le stock dans un
+    #dictionnaire en utilisant la méthode Counter() de la libraire typing.
+    seuil = 4
+    quantite = Counter(self.stock)
+
+    #Parcours du dictionnaire et traitement des alertes
+    for produit, nombre in quantite.items():
+
+      if nombre >= seuil and produit in self.alertes:
+        self.alertes.pop(produit)
+
+      elif nombre < seuil and produit in self.alertes:
+        self.alertes[produit] = nombre
+
+      elif nombre < seuil and produit not in self.alertes:
+        if len(self.alertes) >= 3:
+          self.remplir_stock(seuil)
+        self.alertes[produit] = nombre
+
+  def print_alertes(self):
+    """Affiche les alertes actuelles."""
+    if not self.alertes:
+      print("Aucune alerte")
+    else:
       for alerte in self.alertes:
-        while self.alertes[alerte] < seuil + 1:
-          self.stock.append(alerte)
-          self.alertes[alerte] += 1
-      self.alertes = {}
-  
-    def generer_alerte(self):
-      """Génère des alertes si la quantité d'un produit est en dessous du seuil spécifié.
-      Le dictionnaire des alertes est statique et limitée à 3 éléments. Si on essaye d'en
-      ajouter un quatrième, on traite d'abord les trois premiers avec remplir_stock"""
-      #Enlève les alertes de produits qui ne sont plus dans le stock
-      alertes_aux = {}
-      for produit in self.alertes:
-        if produit in self.stock:
-          alertes_aux[produit] = self.alertes[produit]
-      self.alertes = alertes_aux
-  
-      #Définition du seuil et comptage du nombre de chaque produits dans le stock dans un
-      #dictionnaire en utilisant la méthode Counter() de la libraire typing.
-      seuil = 4
-      quantite = Counter(self.stock)
-  
-      #Parcours du dictionnaire et traitement des alertes
-      for produit, nombre in quantite.items():
-  
-        if nombre >= seuil and produit in self.alertes:
-          self.alertes.pop(produit)
-  
-        elif nombre < seuil and produit in self.alertes:
-          self.alertes[produit] = nombre
-  
-        elif nombre < seuil and produit not in self.alertes:
-          if len(self.alertes) >= 3:
-            self.remplir_stock(seuil)
-          self.alertes[produit] = nombre
-  
-    def print_alertes(self):
-      """Affiche les alertes actuelles."""
-      if not self.alertes:
-        print("Aucune alerte")
+        print(
+            f"Alerte: {alerte} en rupture de stock. ({self.alertes[alerte]} restant)"
+        )
+
+  def sortir_produit_ou_paquet(self):
+    """Effectue la sortie de l'entrepôt d'un produit ou d'un paquet de produits en
+    fonction de la saisie de l'utilisateur."""
+    saisie = input().upper()
+    if saisie is not None and saisie != "":
+      if len(saisie) <= 2:
+        produit = verif_saisie_produit(saisie)
+        if produit != "":
+          colis = sortie_de_produit(self.stock, [produit])
+          afficher_sortie_produit(colis, produit)
       else:
-        for alerte in self.alertes:
-          print(
-              f"Alerte: {alerte} en rupture de stock. ({self.alertes[alerte]} restant)"
-          )
-  
-    def sortir_produit_ou_paquet(self):
-      """Effectue la sortie de l'entrepôt d'un produit ou d'un paquet de produits en
-      fonction de la saisie de l'utilisateur."""
-      saisie = input().upper()
-      if saisie is not None and saisie != "":
-        if len(saisie) <= 2:
-          produit = verif_saisie_produit(saisie)
-          if produit != "":
-            colis = sortie_de_produit(self.stock, [produit])
-            afficher_sortie_produit(colis, produit)
-        else:
-          paquet = verif_saisie_paquet(saisie)
-          if paquet != []:
-            colis = sortie_en_colis_paquet(self.stock, paquet)
-            afficher_sortie_paquet(colis, paquet)
+        paquet = verif_saisie_paquet(saisie)
+        if paquet != []:
+          colis = sortie_en_colis_paquet(self.stock, paquet)
+          afficher_sortie_paquet(colis, paquet)
 
 
 def afficher_menu():
